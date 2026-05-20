@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Warfare — Student Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --green: #00ff41;
+    --green-dim: #00aa2a;
+    --green-dark: #003a0e;
+    --amber: #ffb800;
+    --amber-dim: #a07300;
+    --red: #ff3333;
+    --red-dim: #8b0000;
+    --cyan: #00e5ff;
+    --cyan-dim: #007a8a;
+    --bg: #0a0f0a;
+    --bg-panel: #0d160d;
+    --bg-card: #111a11;
+    --border: #1a3a1a;
+    --border-bright: #00ff41;
+    --text: #c8e6c9;
+    --text-dim: #5a7a5a;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-vt: 'VT323', monospace;
+    --font-mono: 'Share Tech Mono', monospace;
+    --scanline-size: 3px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-vt);
+    font-size: 20px;
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent calc(var(--scanline-size) * 2),
+      rgba(0,0,0,0.15) calc(var(--scanline-size) * 2),
+      rgba(0,0,0,0.15) calc(var(--scanline-size) * 3)
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .crt-flicker {
+    animation: flicker 8s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 98%, 100% { opacity: 1; }
+    99% { opacity: 0.97; }
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ─── HEADER ─── */
+  .site-header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .site-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+
+  .logo {
+    font-family: var(--font-pixel);
+    font-size: clamp(14px, 3vw, 22px);
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2);
+    letter-spacing: 2px;
+    line-height: 1.6;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { text-shadow: 0 0 20px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); }
+    50% { text-shadow: 0 0 30px rgba(0,255,65,0.8), 0 0 60px rgba(0,255,65,0.4); }
+  }
+
+  .logo-sub {
+    font-family: var(--font-vt);
+    font-size: 22px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    letter-spacing: 4px;
+  }
+
+  .blink {
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* ─── NAV ─── */
+  .nav-bar {
+    display: flex;
+    gap: 4px;
+    padding: 16px 0;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .nav-bar a {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-bar a:hover {
+    color: var(--green);
+    border-color: var(--green);
+    background: rgba(0,255,65,0.05);
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--amber);
+    letter-spacing: 2px;
+    margin: 48px 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '▶';
+    color: var(--amber);
+    font-size: 10px;
+  }
+
+  .section-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(11px, 2vw, 14px);
+    color: var(--green);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  .section-intro {
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 24px;
+    max-width: 700px;
+    line-height: 1.7;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+
+  .card-green::before { background: var(--green); }
+  .card-amber::before { background: var(--amber); }
+  .card-red::before { background: var(--red); }
+  .card-cyan::before { background: var(--cyan); }
+
+  .card-title {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .card-green .card-title { color: var(--green); }
+  .card-amber .card-title { color: var(--amber); }
+  .card-red .card-title { color: var(--red); }
+  .card-cyan .card-title { color: var(--cyan); }
+
+  /* ─── CODE BLOCKS ─── */
+  pre {
+    background: #060d06;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green-dim);
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    color: #a8d5a8;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--green);
+    background: rgba(0,255,65,0.07);
+    padding: 1px 5px;
+  }
+
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .str { color: #f1fa8c; }
+  .num { color: var(--cyan); }
+  .cm { color: var(--text-dim); font-style: italic; }
+  .var { color: #bd93f9; }
+  .sig { color: var(--amber); }
+
+  /* ─── PRACTICE BLOCKS ─── */
+  .practice {
+    background: rgba(0,255,65,0.04);
+    border: 1px dashed var(--green-dim);
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+
+  .practice-header {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--green);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .practice-header::before {
+    content: '[!]';
+    color: var(--amber);
+  }
+
+  /* ─── HINT BLOCKS ─── */
+  .hint {
+    background: rgba(255,184,0,0.05);
+    border-left: 3px solid var(--amber-dim);
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 18px;
+    color: #c8a800;
+  }
+
+  .hint::before {
+    content: 'HINT: ';
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--amber);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ─── TIMELINE / STEP LIST ─── */
+  .steps { margin: 16px 0; }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--bg);
+    background: var(--green);
+    padding: 4px 7px;
+    flex-shrink: 0;
+    min-width: 32px;
+    text-align: center;
+  }
+
+  .step-body { flex: 1; }
+  .step-body strong {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--green);
+    display: block;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── TAG PILLS ─── */
+  .tag {
+    display: inline-block;
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    padding: 3px 7px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  .tag-easy { background: var(--green-dark); color: var(--green); border: 1px solid var(--green-dim); }
+  .tag-med  { background: rgba(255,184,0,0.1); color: var(--amber); border: 1px solid var(--amber-dim); }
+  .tag-hard { background: rgba(255,51,51,0.1); color: var(--red); border: 1px solid var(--red-dim); }
+
+  /* ─── GRID ─── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;
+    margin: 16px 0;
+  }
+
+  .data-table th {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--green);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--green-dim);
+    letter-spacing: 1px;
+  }
+
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .data-table tr:hover td { background: rgba(0,255,65,0.03); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+    position: relative;
+    text-align: center;
+  }
+
+  .divider::after {
+    content: attr(data-label);
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 0 12px;
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    letter-spacing: 2px;
+  }
+
+  /* ─── WARNING BOX ─── */
+  .warning {
+    background: rgba(255,51,51,0.06);
+    border: 1px solid var(--red-dim);
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 18px;
+  }
+
+  .warning::before {
+    content: '⚠ WARNING: ';
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--red);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  /* ─── INFO BOX ─── */
+  .info {
+    background: rgba(0,229,255,0.04);
+    border-left: 3px solid var(--cyan-dim);
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 18px;
+    color: #80d8e0;
+  }
+
+  .info::before {
+    content: 'INFO: ';
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ─── SCROLL TOP ─── */
+  .scroll-top {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    background: var(--bg);
+    padding: 8px 10px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    z-index: 200;
+    transition: all 0.15s;
+  }
+
+  .scroll-top:hover {
+    background: var(--green);
+    color: var(--bg);
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-wrap {
+    display: flex;
+    gap: 4px;
+    margin: 20px 0;
+    align-items: center;
+  }
+
+  .progress-seg {
+    height: 6px;
+    flex: 1;
+    background: var(--border);
+    position: relative;
+  }
+
+  .progress-seg.done { background: var(--green); }
+  .progress-seg.partial { background: var(--amber); }
+
+  .progress-label {
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    color: var(--text-dim);
+    min-width: 60px;
+    text-align: right;
+    letter-spacing: 1px;
+  }
+
+  /* ─── FILE PATH ─── */
+  .filepath {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--cyan);
+    background: rgba(0,229,255,0.06);
+    padding: 2px 7px;
+    border: 1px solid rgba(0,229,255,0.15);
+  }
+
+  h3 {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--amber);
+    letter-spacing: 1px;
+    margin: 24px 0 10px;
+  }
+
+  p { margin: 8px 0; }
+  ul { margin: 8px 0 8px 20px; }
+  li { margin: 5px 0; }
+
+  strong { color: var(--green); font-weight: normal; }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ─── ROBOT ICON ─── */
+  .robot-icon {
+    display: inline-block;
+    font-size: 28px;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  /* ─── SESSION BLOCKS ─── */
+  .session-block {
+    border: 1px solid var(--border);
+    margin: 20px 0;
+    overflow: hidden;
+  }
+
+  .session-header {
+    background: rgba(0,255,65,0.06);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .session-num {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--bg);
+    background: var(--green-dim);
+    padding: 5px 10px;
+  }
+
+  .session-title {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.5px;
+  }
+
+  .session-time {
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    color: var(--text-dim);
+    margin-left: auto;
+    letter-spacing: 1px;
+  }
+
+  .session-body { padding: 18px 20px; }
+
+  @media (max-width: 600px) {
+    .nav-bar a { font-size: 5px; padding: 5px 6px; }
+    pre { font-size: 12px; }
+    .logo { font-size: 12px; }
+  }
+</style>
+</head>
+<body class="crt-flicker">
+
+<div class="site-header" id="top">
+  <div class="logo">ROBOT WARFARE<br>STUDENT GUIDE</div>
+  <div class="logo-sub">GODOT 4 · GDSCRIPT · TOWER DEFENSE <span class="blink">█</span></div>
+</div>
+
+<div class="container">
+
+  <nav class="nav-bar">
+    <a href="#overview">OVERVIEW</a>
+    <a href="#flow">FLOW</a>
+    <a href="#scarab">SCARAB</a>
+    <a href="#signals">SIGNALS</a>
+    <a href="#ui">UI</a>
+    <a href="#input">INPUT</a>
+    <a href="#effects">EFFECTS</a>
+    <a href="#soldiers">SOLDIERS</a>
+    <a href="#globals">GLOBALS</a>
+    <a href="#sounds">SOUNDS</a>
+    <a href="#challenges">CHALLENGES</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       OVERVIEW
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="overview">SECTION 00</div>
+  <div class="section-title">HOW THE PROJECT IS ORGANIZED</div>
+
+  <p class="section-intro">
+    Robot Warfare is a tower defense game built in Godot 4. Scarab robots march left across the screen. You click them to damage them, and place soldier turrets to defend your base. Here's the map of every file you'll be working with.
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>FILE</th>
+        <th>WHAT IT DOES</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="filepath">scripts/main.gd</span></td>
+        <td>The game brain — spawns scarabs, handles money, input, round timers, game over</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scenes/enemies/scarab.gd</span></td>
+        <td>Controls a single scarab: movement, health, taking damage, signals</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/soldiers/assault.gd</span></td>
+        <td>Assault turret — targets the nearest robot in range</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/soldiers/sniper.gd</span></td>
+        <td>Sniper turret — targets the robot with the most health</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/soldiers/machine_gunner.gd</span></td>
+        <td>Machine gunner — shoots a random robot in range</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/globals/targeting.gd</span></td>
+        <td>Autoload — shared functions for finding enemies (nearest, strongest, random)</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/globals/sound_manager.gd</span></td>
+        <td>Autoload — plays sound effects and music from anywhere</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/util/damage_numbers.gd</span></td>
+        <td>Floating damage numbers that rise and fade out</td>
+      </tr>
+      <tr>
+        <td><span class="filepath">scripts/effects/small_fragments.gd</span></td>
+        <td>Particle animation that plays when you click to shoot</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info">
+    <strong>Autoloads</strong> are special scripts that are always running. In this project: <code>SoundManager</code>, <code>Targeting</code>, and <code>Game</code>. Any script in the whole project can call them by name — no need to find the node first.
+  </div>
+
+  <hr class="divider" data-label="THE GENERAL FLOW">
+
+  <!-- ═══════════════════════════════════════════
+       GENERAL FLOW
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="flow">SECTION 01</div>
+  <div class="section-title">THE GENERAL FLOW — START HERE</div>
+
+  <p class="section-intro">
+    Run the game first. Understand what it does before changing anything. Here is the full flow from start to game over, so you always know where you are in the code.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <strong>TITLE SCREEN LOADS</strong>
+        <code>scenes/title.tscn</code> is the first scene. Its script (<span class="filepath">scenes/title.gd</span>) has two buttons: Start and Quit. Pressing Start calls <code>get_tree().change_scene_to_file("res://scenes/main.tscn")</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <strong>MAIN SCENE LOADS</strong>
+        <code>main.gd</code> runs. Variables like <code>money</code>, <code>round</code>, and <code>game_over</code> are set to their starting values. Two timers start: <code>ScarabSpawnTimer</code> and <code>RoundTimer</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <strong>SCARABS SPAWN</strong>
+        Every time <code>ScarabSpawnTimer</code> fires, <code>_on_scarab_spawn_timer_timeout()</code> runs — it creates a new Scarab, places it on the right edge at a random Y position, and connects its signals.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <strong>SCARABS MOVE IN <code>_process()</code></strong>
+        Every frame, each scarab subtracts <code>speed * delta</code> from its X position. When X drops below 0, it emits <code>on_base_reached</code>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <strong>ROUNDS GET HARDER</strong>
+        Every time <code>RoundTimer</code> fires, the round counter goes up and <code>ScarabSpawnTimer.wait_time</code> is multiplied by <code>0.9</code> — making scarabs spawn 10% faster each round.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <strong>GAME OVER</strong>
+        When a scarab reaches X &lt; 0, <code>on_base_reached</code> signal fires → <code>base_reached()</code> in main runs → shows the game over label.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" data-label="THE SCARAB">
+
+  <!-- ═══════════════════════════════════════════
+       SCARAB
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="scarab">SECTION 02</div>
+  <div class="section-title">THE SCARAB — YOUR FIRST ENEMY</div>
+
+  <p class="section-intro">
+    The scarab is an <code>Area2D</code> node. This lets it detect mouse clicks. Open <span class="filepath">scenes/enemies/scarab.gd</span> and read along.
+  </p>
+
+  <pre><span class="kw">extends</span> <span class="fn">Area2D</span>
+
+<span class="cm"># Signals tell other parts of the game what happened</span>
+<span class="kw">signal</span> <span class="sig">on_killed</span>
+<span class="kw">signal</span> <span class="sig">on_base_reached</span>
+<span class="kw">signal</span> <span class="sig">on_attacked</span>(<span class="var">amount</span>: <span class="kw">int</span>, <span class="var">position</span>)
+
+<span class="cm"># @export makes these editable in the Inspector!</span>
+<span class="kw">@export var</span> <span class="var">speed</span> = <span class="num">30</span>
+<span class="kw">@export var</span> <span class="var">max_health</span>: <span class="kw">int</span> = <span class="num">14</span>
+<span class="kw">var</span> <span class="var">health</span> = <span class="var">max_health</span>
+<span class="kw">var</span> <span class="var">alive</span> = <span class="kw">true</span>
+
+<span class="kw">func</span> <span class="fn">take_damage</span>(<span class="var">amount</span>: <span class="kw">int</span>):
+    <span class="var">health</span> -= <span class="var">amount</span>
+    <span class="sig">on_attacked</span>.<span class="fn">emit</span>(<span class="var">amount</span>, <span class="var">global_position</span>)
+    <span class="kw">if</span> <span class="var">health</span> &lt;= <span class="num">0</span>:
+        $<span class="fn">AnimatedSprite2D</span>.<span class="fn">play</span>(<span class="str">'die'</span>)
+        <span class="sig">on_killed</span>.<span class="fn">emit</span>()
+        <span class="fn">remove_from_group</span>(<span class="str">"robots"</span>)
+        <span class="var">alive</span> = <span class="kw">false</span>
+        <span class="fn">set_process</span>(<span class="kw">false</span>)
+
+<span class="kw">func</span> <span class="fn">_input_event</span>(<span class="var">viewport</span>, <span class="var">event</span>, <span class="var">shape_idx</span>):
+    <span class="kw">if</span> <span class="var">alive</span> <span class="kw">and</span> Input.<span class="fn">is_action_just_pressed</span>(<span class="str">"main_weapon"</span>):
+        <span class="fn">take_damage</span>(<span class="num">7</span>)
+
+<span class="kw">func</span> <span class="fn">_process</span>(<span class="var">delta</span>: <span class="kw">float</span>) -> <span class="kw">void</span>:
+    <span class="var">position</span>.x -= <span class="var">speed</span> * <span class="var">delta</span>
+    <span class="kw">if</span> <span class="var">global_position</span>.x &lt; <span class="num">0</span>:
+        <span class="sig">on_base_reached</span>.<span class="fn">emit</span>()</pre>
+
+  <div class="card card-amber">
+    <div class="card-title">WHAT IS DELTA?</div>
+    <p><code>delta</code> is the time in seconds since the last frame. It's usually around 0.016 (for 60fps). Multiplying speed by delta makes movement frame-rate independent — the scarab moves the same real-world distance per second whether the game runs at 30fps or 120fps.</p>
+    <p style="margin-top:8px;">Without delta: fast computers = fast scarabs. With delta: everyone gets the same speed.</p>
+  </div>
+
+  <div class="card card-green">
+    <div class="card-title">WHY remove_from_group("robots")?</div>
+    <p>Soldiers find targets using <code>get_tree().get_nodes_in_group("robots")</code>. If a dead scarab stays in the group, soldiers might keep shooting a corpse. Removing it from the group means dead robots are instantly ignored by all targeting code.</p>
+  </div>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — SCARAB STATS</div>
+    <p>Select a Scarab in the scene. In the Inspector, find <code>speed</code> and <code>max_health</code>. Change them and run the game. What happens if speed is 200? What if max_health is 100?</p>
+    <div class="hint">You can't change @export variables while the game is running in release mode. But in the Editor, they're live-editable in the Inspector panel.</div>
+  </div>
+
+  <hr class="divider" data-label="SIGNALS">
+
+  <!-- ═══════════════════════════════════════════
+       SIGNALS
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="signals">SECTION 03</div>
+  <div class="section-title">SIGNALS — HOW NODES TALK TO EACH OTHER</div>
+
+  <p class="section-intro">
+    Signals are how different parts of your game communicate without needing direct references to each other. The scarab doesn't know or care what happens when it dies — it just broadcasts the signal. Main listens and reacts.
+  </p>
+
+  <div class="grid-2">
+    <div class="card card-green">
+      <div class="card-title">STEP 1 — DEFINE THE SIGNAL</div>
+      <p>In <span class="filepath">scarab.gd</span>, at the top:</p>
+      <pre style="margin-top:8px"><span class="kw">signal</span> <span class="sig">on_killed</span></pre>
+      <p>This creates a signal called <code>on_killed</code> that belongs to the scarab.</p>
+    </div>
+    <div class="card card-amber">
+      <div class="card-title">STEP 2 — EMIT THE SIGNAL</div>
+      <p>When something happens, fire it:</p>
+      <pre style="margin-top:8px"><span class="sig">on_killed</span>.<span class="fn">emit</span>()</pre>
+      <p>This broadcasts "something happened" to anyone listening.</p>
+    </div>
+    <div class="card card-cyan">
+      <div class="card-title">STEP 3 — CONNECT THE SIGNAL</div>
+      <p>In <span class="filepath">main.gd</span>, after creating a scarab:</p>
+      <pre style="margin-top:8px"><span class="var">scarab</span>.<span class="sig">on_killed</span>.<span class="fn">connect</span>(<span class="fn">_on_enemy_killed</span>)</pre>
+      <p>Now when <code>on_killed</code> fires, <code>_on_enemy_killed()</code> runs.</p>
+    </div>
+    <div class="card card-red">
+      <div class="card-title">STEP 4 — THE FUNCTION RUNS</div>
+      <pre style="margin-top:8px"><span class="kw">func</span> <span class="fn">_on_enemy_killed</span>():
+    <span class="var">money</span> += <span class="num">10</span>
+    $<span class="fn">UI</span>/<span class="fn">MoneyLabel</span>.text = <span class="str">'$ '</span> + <span class="fn">str</span>(<span class="var">money</span>)</pre>
+    </div>
+  </div>
+
+  <div class="info">
+    The scarab also sends data with its <code>on_attacked</code> signal: <code>on_attacked.emit(amount, global_position)</code>. The connected function must accept those same parameters: <code>func add_damage_nums(amount, position):</code>
+  </div>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — CREATE YOUR OWN SIGNAL</div>
+    <p>The scarab already has <code>on_base_reached</code> defined and emitted. Find where it's connected in <span class="filepath">main.gd</span>. Then look at <code>base_reached()</code> and trace exactly what happens when a scarab reaches the left edge.</p>
+  </div>
+
+  <hr class="divider" data-label="UI & CANVAS LAYERS">
+
+  <!-- ═══════════════════════════════════════════
+       UI
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="ui">SECTION 04</div>
+  <div class="section-title">UI — LABELS, CANVAS LAYERS, AND VISIBILITY</div>
+
+  <p class="section-intro">
+    The UI lives on a <code>CanvasLayer</code> node. This keeps it fixed on screen even when the camera moves. Labels and buttons live inside it.
+  </p>
+
+  <h3>UPDATING A LABEL</h3>
+  <p>Labels have a <code>text</code> property. To change it from code:</p>
+  <pre>$<span class="fn">UI</span>/<span class="fn">MoneyLabel</span>.text = <span class="str">'$ '</span> + <span class="fn">str</span>(<span class="var">money</span>)</pre>
+
+  <div class="card card-amber">
+    <div class="card-title">WHY str()?</div>
+    <p><code>money</code> is an integer. Label text must be a String. <code>str()</code> converts any value into a String. Without it, Godot will give you an error.</p>
+  </div>
+
+  <h3>SHOWING AND HIDING NODES</h3>
+  <pre><span class="cm"># Show a hidden node</span>
+$<span class="fn">UI</span>/<span class="fn">GameOverLabel</span>.<span class="fn">show</span>()
+
+<span class="cm"># Hide a visible node</span>
+$<span class="fn">UI</span>/<span class="fn">GameOverLabel</span>.<span class="fn">hide</span>()</pre>
+
+  <p>In the Scene tab, you can also click the eye icon next to any node to hide it. Hidden nodes are invisible but still exist in code.</p>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — ADD A ROUND LABEL</div>
+    <p>There is already a <code>RoundLabel</code> in the scene. In <span class="filepath">main.gd</span>, find <code>_on_round_timer_timeout()</code>. It already updates the label. Read it and understand it. Then try: what would you change to show "WAVE 1" instead of "Round 1"?</p>
+    <div class="hint">The text is just a String. Change <code>'Round '</code> to whatever you want.</div>
+  </div>
+
+  <hr class="divider" data-label="INPUT">
+
+  <!-- ═══════════════════════════════════════════
+       INPUT
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="input">SECTION 05</div>
+  <div class="section-title">INPUT — MOUSE AND KEYBOARD</div>
+
+  <p class="section-intro">
+    Input actions are defined in <strong>Project → Project Settings → Input Map</strong>. This project has: <code>main_weapon</code> (left click), <code>place_soldier</code> (right click), <code>pan_left</code> / <code>pan_right</code> (A/D), <code>pause</code> (Escape), and <code>slot_1</code>/<code>slot_2</code>/<code>slot_3</code> (keys 1/2/3).
+  </p>
+
+  <h3>CHECKING INPUT IN _process()</h3>
+  <pre><span class="kw">func</span> <span class="fn">_process</span>(<span class="var">delta</span>: <span class="kw">float</span>) -> <span class="kw">void</span>:
+    <span class="kw">if</span> Input.<span class="fn">is_action_just_pressed</span>(<span class="str">"main_weapon"</span>):
+        <span class="cm"># runs once when the button is first pressed</span>
+        <span class="fn">do_something</span>()</pre>
+
+  <div class="grid-2">
+    <div class="card card-green">
+      <div class="card-title">is_action_just_pressed</div>
+      <p>Fires once on the frame the button is pressed. Good for: shooting, placing objects, opening menus.</p>
+    </div>
+    <div class="card card-amber">
+      <div class="card-title">is_action_pressed</div>
+      <p>Fires every frame while held. Good for: movement, charging, holding a fire button.</p>
+    </div>
+  </div>
+
+  <h3>GETTING MOUSE POSITION</h3>
+  <pre><span class="var">get_global_mouse_position</span>()  <span class="cm"># returns a Vector2 (x, y)</span></pre>
+
+  <p>This is used in <code>main.gd</code> to place soldiers exactly where you right-click:</p>
+  <pre><span class="var">soldier</span>.<span class="var">global_position</span> = <span class="fn">get_global_mouse_position</span>()</pre>
+
+  <h3>_input_event ON AREA2D NODES</h3>
+  <p>Scarab uses a different approach. Because it's an <code>Area2D</code>, it can receive its own input events when you click directly on it:</p>
+  <pre><span class="kw">func</span> <span class="fn">_input_event</span>(<span class="var">viewport</span>: <span class="fn">Viewport</span>, <span class="var">event</span>: <span class="fn">InputEvent</span>, <span class="var">shape_idx</span>: <span class="kw">int</span>):
+    <span class="kw">if</span> <span class="var">alive</span> <span class="kw">and</span> Input.<span class="fn">is_action_just_pressed</span>(<span class="str">"main_weapon"</span>):
+        <span class="fn">take_damage</span>(<span class="num">7</span>)</pre>
+
+  <div class="hint">Print the <code>event</code> parameter to see what data a click gives you: <code>print(event)</code>. Try it — you'll see button index, position, and more.</div>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — PLACING SOLDIERS</div>
+    <p>Find the <code>place_soldier</code> input block in <code>main.gd</code>. It checks <code>selected_object</code> (1, 2, or 3) and subtracts cost from <code>money</code> before instantiating. Trace through: what happens if you don't have enough money? What if you press 2 first and then right-click?</p>
+  </div>
+
+  <hr class="divider" data-label="EFFECTS">
+
+  <!-- ═══════════════════════════════════════════
+       EFFECTS
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="effects">SECTION 06</div>
+  <div class="section-title">EFFECTS — FRAGMENTS AND DAMAGE NUMBERS</div>
+
+  <h3>SMALL FRAGMENTS (CLICK EFFECT)</h3>
+  <p>When you left-click, <span class="filepath">main.gd</span> instantiates <code>SMALL_FRAGMENTS</code> at the mouse position:</p>
+
+  <pre><span class="kw">if</span> Input.<span class="fn">is_action_just_pressed</span>(<span class="str">"main_weapon"</span>):
+    SoundManager.<span class="fn">play</span>(<span class="str">"gunshot"</span>)
+    <span class="kw">var</span> <span class="var">fragments</span> = SMALL_FRAGMENTS.<span class="fn">instantiate</span>()
+    <span class="var">fragments</span>.<span class="var">global_position</span> = <span class="fn">get_global_mouse_position</span>()
+    <span class="fn">add_child</span>(<span class="var">fragments</span>)</pre>
+
+  <p>The fragment scene is an <code>AnimatedSprite2D</code>. Its script is tiny:</p>
+  <pre><span class="kw">extends</span> <span class="fn">AnimatedSprite2D</span>
+
+<span class="kw">func</span> <span class="fn">_on_animation_finished</span>():
+    <span class="fn">queue_free</span>()  <span class="cm"># delete itself when the animation ends</span></pre>
+
+  <div class="card card-green">
+    <div class="card-title">THE 3-STEP INSTANCE PATTERN</div>
+    <p>Creating any object in Godot always follows this pattern:</p>
+    <pre style="margin-top:8px"><span class="cm"># 1. Create the instance from the preloaded scene</span>
+<span class="kw">var</span> <span class="var">thing</span> = THING_SCENE.<span class="fn">instantiate</span>()
+
+<span class="cm"># 2. Set properties on it</span>
+<span class="var">thing</span>.<span class="var">global_position</span> = <span class="fn">get_global_mouse_position</span>()
+
+<span class="cm"># 3. Add it to the scene tree so it actually appears</span>
+<span class="fn">add_child</span>(<span class="var">thing</span>)</pre>
+  </div>
+
+  <h3>DAMAGE NUMBERS</h3>
+  <p>When a scarab is hit, it emits <code>on_attacked(amount, position)</code>. Main catches this and creates floating damage numbers:</p>
+
+  <pre><span class="kw">func</span> <span class="fn">add_damage_nums</span>(<span class="var">amount</span>, <span class="var">position</span>):
+    <span class="kw">var</span> <span class="var">damage_numbers</span> = DAMAGE_NUMBERS.<span class="fn">instantiate</span>()
+    <span class="var">damage_numbers</span>.<span class="var">global_position</span> = <span class="var">position</span>
+    <span class="var">damage_numbers</span>.<span class="fn">set_amount</span>(<span class="var">amount</span>)
+    <span class="fn">add_child</span>(<span class="var">damage_numbers</span>)</pre>
+
+  <p>The damage number itself moves up and fades:</p>
+  <pre><span class="kw">func</span> <span class="fn">_process</span>(<span class="var">delta</span>: <span class="kw">float</span>):
+    <span class="var">position</span>.y -= <span class="var">delta</span> * <span class="var">speed</span>       <span class="cm"># float upward</span>
+    <span class="var">modulate</span>.a -= <span class="var">delta</span> * <span class="var">fade_out_speed</span>  <span class="cm"># fade out</span>
+
+<span class="kw">func</span> <span class="fn">_on_timer_timeout</span>():
+    <span class="fn">queue_free</span>()  <span class="cm"># delete after timer expires</span></pre>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — CUSTOMIZE DAMAGE NUMBERS</div>
+    <p>Open <span class="filepath">scripts/util/damage_numbers.gd</span>. Change <code>speed</code> and <code>fade_out_speed</code>. What happens if speed is very high? Can you make the numbers drift sideways too? (Hint: <code>position.x</code>)</p>
+  </div>
+
+  <hr class="divider" data-label="SOLDIERS">
+
+  <!-- ═══════════════════════════════════════════
+       SOLDIERS
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="soldiers">SECTION 07</div>
+  <div class="section-title">SOLDIERS — THREE TURRET TYPES</div>
+
+  <p class="section-intro">
+    All three soldier types share the same structure. The only difference is which targeting function they call. Compare them side by side:
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>SOLDIER</th>
+        <th>TARGETING FUNCTION</th>
+        <th>STRATEGY</th>
+        <th>COST</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Assault <span class="tag tag-easy">SLOT 1</span></td>
+        <td><code>Targeting.get_nearest_enemy()</code></td>
+        <td>Shoots the closest robot in range</td>
+        <td>$100</td>
+      </tr>
+      <tr>
+        <td>Machine Gunner <span class="tag tag-med">SLOT 3</span></td>
+        <td><code>Targeting.get_random_enemy()</code></td>
+        <td>Shoots a random robot in range</td>
+        <td>$300</td>
+      </tr>
+      <tr>
+        <td>Sniper <span class="tag tag-hard">SLOT 2</span></td>
+        <td><code>Targeting.get_strongest_enemy()</code></td>
+        <td>Shoots the robot with the most health</td>
+        <td>$500</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Each soldier's shoot timer calls the targeting function and, if it finds a target, calls <code>take_damage()</code> on it:</p>
+  <pre><span class="kw">func</span> <span class="fn">_on_shoot_timer_timeout</span>():
+    <span class="kw">var</span> <span class="var">nearest</span> = Targeting.<span class="fn">get_nearest_enemy</span>(<span class="var">global_position</span>, <span class="var">range</span>)
+    <span class="kw">if</span> <span class="var">nearest</span> != <span class="kw">null</span>:
+        <span class="var">nearest</span>.<span class="fn">take_damage</span>(<span class="var">damage</span>)
+        $<span class="fn">MuzzleFlashAnimation</span>.<span class="fn">play</span>(<span class="str">'default'</span>)
+        $<span class="fn">MuzzleFlashAnimation</span>.<span class="fn">show</span>()</pre>
+
+  <div class="card card-amber">
+    <div class="card-title">WHAT IS null?</div>
+    <p>When a targeting function finds no valid target (no robots in range), it returns <code>null</code> — meaning "nothing". Always check <code>if target != null</code> before calling functions on it, or Godot will error.</p>
+  </div>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — MAKE A NEW SOLDIER TYPE</div>
+    <p>Duplicate one of the existing soldier scenes. Change its <code>@export</code> values in the Inspector (high damage + slow cooldown = sniper feel; low damage + fast cooldown = machinegun feel). Wire it up in <code>main.gd</code> as slot 4. What targeting strategy would you use for a "healer" that targets the weakest robot?</p>
+    <div class="hint">You'd need to add a new function to <code>targeting.gd</code> that finds the robot with the lowest health.</div>
+  </div>
+
+  <hr class="divider" data-label="GLOBALS & TARGETING">
+
+  <!-- ═══════════════════════════════════════════
+       GLOBALS
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="globals">SECTION 08</div>
+  <div class="section-title">GLOBALS — TARGETING AND AUTOLOADS</div>
+
+  <p class="section-intro">
+    Autoloads are scripts that are always running, accessible from anywhere by name. This project has three: <code>SoundManager</code>, <code>Targeting</code>, and <code>Game</code>. You never need to use <code>$</code> or <code>get_node()</code> to access them.
+  </p>
+
+  <h3>TARGETING.GD</h3>
+  <p>All four functions follow the same pattern — loop through every node in the "robots" group, check if it's in range, find the one matching the criteria:</p>
+
+  <pre><span class="kw">func</span> <span class="fn">get_nearest_enemy</span>(<span class="var">position</span>, <span class="var">range</span>):
+    <span class="kw">var</span> <span class="var">nearest_enemy</span> = <span class="kw">null</span>
+    <span class="kw">var</span> <span class="var">nearest_distance</span> = INF   <span class="cm"># INF = infinity, every real distance is less</span>
+
+    <span class="kw">for</span> <span class="var">robot</span> <span class="kw">in</span> <span class="fn">get_tree</span>().<span class="fn">get_nodes_in_group</span>(<span class="str">"robots"</span>):
+        <span class="kw">var</span> <span class="var">distance</span> = <span class="var">position</span>.<span class="fn">distance_to</span>(<span class="var">robot</span>.<span class="var">global_position</span>)
+
+        <span class="kw">if</span> <span class="var">distance</span> &lt;= <span class="var">range</span> <span class="kw">and</span> <span class="var">distance</span> &lt; <span class="var">nearest_distance</span>:
+            <span class="var">nearest_enemy</span> = <span class="var">robot</span>
+            <span class="var">nearest_distance</span> = <span class="var">distance</span>
+
+    <span class="kw">return</span> <span class="var">nearest_enemy</span></pre>
+
+  <div class="card card-cyan">
+    <div class="card-title">THE "ROBOTS" GROUP</div>
+    <p>Each scarab scene has it added to the "robots" group in the Node → Groups panel. When a scarab dies, it's removed with <code>remove_from_group("robots")</code>. This is how all targeting functions know which nodes are valid targets.</p>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>FUNCTION</th><th>FINDS</th><th>KEY VARIABLE IT TRACKS</th></tr></thead>
+    <tbody>
+      <tr><td><code>get_nearest_enemy()</code></td><td>Closest robot in range</td><td><code>nearest_distance</code></td></tr>
+      <tr><td><code>get_strongest_enemy()</code></td><td>Robot with most health</td><td><code>highest_health</code></td></tr>
+      <tr><td><code>get_random_enemy()</code></td><td>Random robot in range</td><td>builds list, calls <code>pick_random()</code></td></tr>
+      <tr><td><code>get_enemies_in_range()</code></td><td>All robots in range (returns an array)</td><td>appends to <code>enemies</code> array</td></tr>
+    </tbody>
+  </table>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — WRITE get_weakest_enemy()</div>
+    <p>Add a new function to <span class="filepath">targeting.gd</span> called <code>get_weakest_enemy(position, range)</code> that returns the robot with the <em>lowest</em> health. It should look very similar to <code>get_strongest_enemy()</code> but with the comparison flipped.</p>
+    <div class="hint">Instead of tracking <code>highest_health</code> starting at 0, you'll want to track <code>lowest_health</code> starting at... what? (Hint: <code>INF</code>)</div>
+  </div>
+
+  <hr class="divider" data-label="SOUND MANAGER">
+
+  <!-- ═══════════════════════════════════════════
+       SOUNDS
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="sounds">SECTION 09</div>
+  <div class="section-title">SOUNDS — THE SOUND MANAGER</div>
+
+  <p class="section-intro">
+    <code>SoundManager</code> is an autoload in <span class="filepath">scripts/globals/sound_manager.gd</span>. To play a sound from anywhere in the project, just call:
+  </p>
+
+  <pre>SoundManager.<span class="fn">play</span>(<span class="str">"gunshot"</span>)
+SoundManager.<span class="fn">play</span>(<span class="str">"lose"</span>)
+SoundManager.<span class="fn">play</span>(<span class="str">"ui-select"</span>)</pre>
+
+  <p>Sounds are registered in a dictionary at the top of the file:</p>
+
+  <pre><span class="kw">var</span> <span class="var">sounds</span> = {
+    <span class="str">"gunshot"</span>: <span class="fn">preload</span>(<span class="str">"res://sounds/effects/gunshot.mp3"</span>),
+    <span class="str">"ui-select"</span>: <span class="fn">preload</span>(<span class="str">"res://sounds/ui/button-click.wav"</span>),
+    <span class="str">"lose"</span>: <span class="fn">preload</span>(<span class="str">"res://sounds/effects/lose.wav"</span>)
+}</pre>
+
+  <h3>ADDING A NEW SOUND</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <strong>GET A SOUND FILE</strong>
+        Find a free sound at <a href="https://freesound.org" target="_blank">freesound.org</a> or generate one at <a href="https://sfbgames.itch.io/chiptone" target="_blank">sfbgames.itch.io/chiptone</a>. Download as .wav or .mp3.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <strong>DROP IT IN THE PROJECT</strong>
+        Drag it into the <span class="filepath">sounds/effects/</span> folder in Godot's FileSystem panel. Godot will import it automatically.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <strong>REGISTER IT</strong>
+        Add a new entry to the <code>sounds</code> dictionary in <span class="filepath">sound_manager.gd</span>:
+        <pre style="margin-top:8px"><span class="str">"explosion"</span>: <span class="fn">preload</span>(<span class="str">"res://sounds/effects/explosion.wav"</span>)</pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <strong>PLAY IT</strong>
+        Call it from anywhere:
+        <pre style="margin-top:8px">SoundManager.<span class="fn">play</span>(<span class="str">"explosion"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning">
+    Only one sound effect can play at a time with the current <code>sfx_player</code> setup. If two sounds fire at the same moment, the second one will cut off the first. You can fix this by creating more <code>AudioStreamPlayer</code> nodes for important sounds.
+  </div>
+
+  <div class="practice">
+    <div class="practice-header">PRACTICE — ADD A DEATH SOUND</div>
+    <p>There's no sound when a scarab dies. Add one. You'll need to: find a sound file, add it to <code>sound_manager.gd</code>, then call <code>SoundManager.play("death")</code> inside <code>take_damage()</code> in <span class="filepath">scarab.gd</span> when <code>health &lt;= 0</code>.</p>
+  </div>
+
+  <hr class="divider" data-label="CHALLENGES">
+
+  <!-- ═══════════════════════════════════════════
+       CHALLENGES
+  ═══════════════════════════════════════════ -->
+  <div class="section-label" id="challenges">SECTION 10</div>
+  <div class="section-title">CHALLENGES — WHAT TO BUILD NEXT</div>
+
+  <p class="section-intro">
+    Pick something that sounds interesting. All of these fit inside the existing codebase — you're not rewriting anything, just extending it.
+  </p>
+
+  <h3>BEGINNER</h3>
+
+  <div class="card card-green">
+    <div class="card-title">SCARAB HEALTH BAR <span class="tag tag-easy">EASY</span></div>
+    <p>Add a <code>ProgressBar</code> node to the scarab scene. In <code>take_damage()</code>, update it:</p>
+    <pre>$<span class="fn">HealthBar</span>.value = <span class="fn">float</span>(<span class="var">health</span>) / <span class="var">max_health</span> * <span class="num">100</span></pre>
+    <p>Set the ProgressBar's Max Value to 100 in the Inspector.</p>
+  </div>
+
+  <div class="card card-green">
+    <div class="card-title">TITLE SCREEN DECORATION <span class="tag tag-easy">EASY</span></div>
+    <p>Open <code>scenes/title.tscn</code>. Add an <code>AnimatedSprite2D</code> using one of the robot sprites from <span class="filepath">assets/Robots/</span>. Make it walk across the screen using a <code>Tween</code> or by moving it in <code>_process()</code>.</p>
+  </div>
+
+  <div class="card card-green">
+    <div class="card-title">KILLS COUNTER <span class="tag tag-easy">EASY</span></div>
+    <p>Add a <code>kills</code> variable to <code>main.gd</code> and increment it in <code>_on_enemy_killed()</code>. Add a label to the UI that displays it. Try showing kills per round too.</p>
+  </div>
+
+  <h3>INTERMEDIATE</h3>
+
+  <div class="card card-amber">
+    <div class="card-title">NEW ENEMY TYPE: SPIDER <span class="tag tag-med">MEDIUM</span></div>
+    <p>The Spider sprite is in <span class="filepath">assets/Robots/Spider.png</span>. Duplicate <code>scarab.tscn</code>, swap the sprite, and change the stats to be slow and tanky (low speed, high max_health). Add a second spawn timer in main for it.</p>
+    <div class="hint">Check the animation frame data in <span class="filepath">assets/Robots/Robot animation info.txt</span> for frame counts.</div>
+  </div>
+
+  <div class="card card-amber">
+    <div class="card-title">INTRO CUTSCENE <span class="tag tag-med">MEDIUM</span></div>
+    <p>On the title screen, make scarabs run in from the right side and trigger an explosion animation before the game starts. Use a <code>Timer</code> to delay the start button appearing. Text can scroll in from the bottom using a <code>Tween</code> on <code>position.y</code>.</p>
+  </div>
+
+  <div class="card card-amber">
+    <div class="card-title">SHOP / UPGRADE SYSTEM <span class="tag tag-med">MEDIUM</span></div>
+    <p>Add a simple upgrade: a button that costs $200 and increases all soldier damage by 1. Store a global <code>damage_bonus</code> variable in <code>Game</code> autoload, and add it to each soldier's damage when shooting.</p>
+    <pre>nearest.<span class="fn">take_damage</span>(<span class="var">damage</span> + <span class="fn">Game</span>.<span class="var">damage_bonus</span>)</pre>
+  </div>
+
+  <h3>ADVANCED</h3>
+
+  <div class="card card-red">
+    <div class="card-title">CREDITS SCROLL <span class="tag tag-hard">HARD</span></div>
+    <p>Make a credits screen that scrolls a <code>Label</code> upward using <code>_process()</code> or a Tween. Add a skip button. Connect it from the main menu. The label can include your name, your team's name, and "special thanks to" — whatever you want.</p>
+  </div>
+
+  <div class="card card-red">
+    <div class="card-title">TARGETING: WEAKEST ENEMY <span class="tag tag-hard">HARD</span></div>
+    <p>Write <code>get_weakest_enemy(position, range)</code> in <span class="filepath">targeting.gd</span> that targets the robot with the lowest current health. Create a new soldier type that uses it. Think about when this strategy is better or worse than targeting the strongest.</p>
+  </div>
+
+  <div class="card card-red">
+    <div class="card-title">PAUSE MENU SOUNDS <span class="tag tag-hard">HARD</span></div>
+    <p>The pause menu works, but there are no sounds for opening or closing it. The catch: when the tree is paused, <code>AudioStreamPlayer</code> also stops. Look up <code>process_mode</code> on the SoundManager node — set it to "Always" so it keeps running while paused.</p>
+  </div>
+
+  <hr class="divider" data-label="REFERENCE">
+
+  <!-- ═══════════════════════════════════════════
+       QUICK REFERENCE
+  ═══════════════════════════════════════════ -->
+  <div class="section-label">APPENDIX</div>
+  <div class="section-title">QUICK REFERENCE — COMMON PATTERNS</div>
+
+  <table class="data-table">
+    <thead><tr><th>WHAT YOU WANT TO DO</th><th>HOW</th></tr></thead>
+    <tbody>
+      <tr><td>Create a new object from a scene</td><td><code>var x = SCENE.instantiate(); add_child(x)</code></td></tr>
+      <tr><td>Delete a node from the scene</td><td><code>queue_free()</code> (safe) or <code>free()</code> (instant)</td></tr>
+      <tr><td>Get mouse position in world space</td><td><code>get_global_mouse_position()</code></td></tr>
+      <tr><td>Convert a number to text</td><td><code>str(my_number)</code></td></tr>
+      <tr><td>Pause the game</td><td><code>get_tree().paused = true</code></td></tr>
+      <tr><td>Change scenes</td><td><code>get_tree().change_scene_to_file("res://scenes/x.tscn")</code></td></tr>
+      <tr><td>Play a sound</td><td><code>SoundManager.play("sound_name")</code></td></tr>
+      <tr><td>Stop a node from running _process()</td><td><code>set_process(false)</code></td></tr>
+      <tr><td>Get all nodes in a group</td><td><code>get_tree().get_nodes_in_group("group_name")</code></td></tr>
+      <tr><td>Random integer in a range</td><td><code>randi_range(min, max)</code></td></tr>
+      <tr><td>Show/hide a node</td><td><code>.show()</code> / <code>.hide()</code></td></tr>
+      <tr><td>Access a child node</td><td><code>$NodeName</code> or <code>$Parent/Child</code></td></tr>
+      <tr><td>Emit a signal</td><td><code>signal_name.emit()</code> or <code>signal_name.emit(value)</code></td></tr>
+      <tr><td>Connect a signal in code</td><td><code>node.signal_name.connect(function_name)</code></td></tr>
+    </tbody>
+  </table>
+
+  <div style="text-align:center; margin-top: 48px; padding: 24px; border-top: 1px solid var(--border);">
+    <div style="font-family: var(--font-pixel); font-size: 8px; color: var(--text-dim); letter-spacing: 2px; line-height: 2.2;">
+      ROBOT WARFARE STUDENT GUIDE<br>
+      BUILT WITH GODOT 4 · GDSCRIPT<br>
+      <span style="color: var(--green);">GOOD LUCK, COMMANDER <span class="blink">█</span></span>
+    </div>
+  </div>
+
+</div>
+
+<a href="#top" class="scroll-top">▲ TOP</a>
+
+</body>
+</html>
